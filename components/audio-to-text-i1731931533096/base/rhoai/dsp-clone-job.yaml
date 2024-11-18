@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dsp-clone-job-audio-to-text-i1731931533096-gitops
+spec:  
+  template:         
+    metadata:
+      name: dsp-clone-job-audio-to-text-i1731931533096-gitops
+    spec:  
+      serviceAccountName: audio-to-text-i1731931533096-dsp-job
+      containers:
+      - name: initialize-dsp
+        image: quay.io/redhat-ai-dev/utils:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          NS=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+          oc wait -l statefulset=audio-to-text-i1731931533096-notebook --for=condition=ready pod --timeout=300s
+          oc exec  StatefulSet/audio-to-text-i1731931533096-notebook -- git clone https://github.com/jrichter-rhtap/audio-to-text-i1731931533096
+      restartPolicy: Never
